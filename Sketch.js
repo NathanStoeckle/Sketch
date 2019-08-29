@@ -86,9 +86,24 @@ function getMouse(e) {
   return mouse;
 }
 
-function getArrowKeys() {
+function getArrowKeys(e) {
   //Use onkeydown to find triggers of arrow keys
-  
+  //Up Arrow Key
+  if(e.keyCode === '38') {
+    
+  }
+  //Left Arrow Key
+  if (e.keyCode === '37') {
+    
+  }
+  //Right Arrow Key
+  if (e.keyCode === '39') {
+    
+  }
+  //Down Arrow Key
+  if (e.keyCode === '40') {
+    
+  }
 }
 
 //Found some code that I've done on a previous exercise - USED as reference
