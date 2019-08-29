@@ -1,8 +1,8 @@
 // Code for JavaScript for Etch a Sketch style
 
 //Declare the box's width and height size for canvas to be drawn upon the screen
-const boxWidth = 500;
-const boxHeight = 800;
+const boxWidth = 700;
+const boxHeight = 500;
 const dragging = false;
 
 //It should be wrapped around a container since it will be drawn upon it...
@@ -21,6 +21,8 @@ draw.setAttribute('id', 'draw');
 
 //Reset Function
 function reset() {
+
+  console.log('Reset Called');
 
   //Calls the div field from the HTML file
   const div = draw.querySelector('div');
@@ -61,6 +63,19 @@ function mouseDown(e) {
 
 }
 
+function pencilTool() {
+  //PENCIL TOOL
+  //Set ctx.strokeStyle and ctx.lineWidth to correct global values
+  ctx.strokeStyle = strokeStyle;
+  ctx.lineWidth = lineWidth;
+
+  // Draw a line to x, y of mouse
+  //ctx.lineTo(mouse.x, mouse.y);
+
+  //Stroke the line
+  ctx.stroke();
+}
+
 //This function should cancel out the original function
 function doMouseup(e) {
   switch (currentTool) {
@@ -89,20 +104,20 @@ function getMouse(e) {
 function getArrowKeys(e) {
   //Use onkeydown to find triggers of arrow keys
   //Up Arrow Key
-  if(e.keyCode === '38') {
-    
+  if (e.keyCode === '38') {
+
   }
   //Left Arrow Key
   if (e.keyCode === '37') {
-    
+
   }
   //Right Arrow Key
   if (e.keyCode === '39') {
-    
+
   }
   //Down Arrow Key
   if (e.keyCode === '40') {
-    
+    //Draw downwards...
   }
 }
 
