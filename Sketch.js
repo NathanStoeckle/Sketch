@@ -1,66 +1,84 @@
 // Code for JavaScript for Etch a Sketch style
 
-//Declare the box's width and height size for canvas to be drawn upon the screen
-const boxWidth = 700;
-const boxHeight = 500;
-const dragging = false;
+"use strict";
 
-//It should be wrapped around a container since it will be drawn upon it...
-//  Note: This will be called from HTML file, not JS file
-const container = document.getElementById('container');
+window.onload = init;
 
-//Creates a new element depending on what you want
-const draw = document.createElement('div');
 
-draw.setAttribute('id', 'draw');
+//GLOBALS
+var canvas, ctx, dragging = false,
+  lineWidth, strokeStyle, currentTool, fillStyle, origin, topCanvas, topCtx;
+
+//CONSTANTS
+var default_line_width = 3;
+var default_stroke_style = 'black';
+var tool_pencil = "toolPencil";
+var tool_line = "toolLine";
+var deltaX = 0;
+var deltaY = 0;
+
+//Added window event listeners, this may need to be moved somewhere
+window.addEventListener("keydown", getArrowKeys, false);
+window.addEventListener("keyup", keysReleased, false);
+
+var keys = []
 
 //Will add in more depending on what we might need
 //  Examples like a clear, save, load, color buttons
 
 //Functions
+function init() {
+  // initialize some globals
+  canvas = document.querySelector('#mainCanvas');
+  ctx = canvas.getContext('2d');
+  lineWidth = default_line_width;
+  strokeStyle = default_stroke_style;
+  currentTool = tool_pencil;
+  origin = {};
+  topCanvas = document.querySelector('#topCanvas');
+  topCtx = topCanvas.getContext('2d');
 
-//Reset Function
+  //Set the initial properties
+  topCtx.lineWidth = ctx.lineWidth = lineWidth;
+  topCtx.strokeStyle = ctx.strokeStyle = strokeStyle;
+
+  //Event Listeners
+  canvas.getArrowKeys = getArrowKeys;
+
+
+}
+
+//Reset the top canvas since it was drawn on primarly
+function clearTopCanvas() {
+  topCtx.clearRect(0, 0, topCtx.canvas.width, topCtx.canvas.height);
+}
+
+//Reset Function - Should clear the top canvas...
 function reset() {
 
   console.log('Reset Called');
-
-  //Calls the div field from the HTML file
-  const div = draw.querySelector('div');
-
-  //.forEach goes through an array, which is what the grid for this will typically contain
-  div.forEach((div) => {
-
-    //Change the color to white
-    div.style.background = 'white';
-  });
+  topCtx.clearRect(0, 0, topCtx.canvas.width, topCtx.canvas.height);
 }
 
-//Function for listening for mouseover function?
-//  This might change to become a mouse click
-function mouseListen() {
-  const div = draw.querySelectorAll('div');
-  div.forEach((div) => {
-
-    //Use an addEventLister to catch the trigger when the mouse is being called upon
-    div.addEventListener('mouseover', (e) => {
-      e.target.style.background = 'black';
-    });
-
-    //This should be the onclick method...
-    div.addEventListener('onclick', (e) => {
-      e.target.style.background = 'black';
-    });
-  });
+function getMouse(e) {
+  var mouse = {}
+  mouse.x = e.pageX - e.target.offsetLeft;
+  mouse.y = e.pageY - e.target.offsetTop;
+  return mouse;
 }
 
-function mouseDown(e) {
+//Using doMouseDown to detect when it is being drawn, and using the arrow keys to move the lines.
+function doMouseDown(e) {
   console.log(e.type);
   dragging = true;
 
   //Get the location of the mouse coordinates
   var mouse = getMouse(e);
 
-
+  ctx.beginPath();
+  ctx.moveTo(deltaX, deltaY);
+  ctx.lineTo(deltaX, deltaY);
+  ctx.closePath();
 }
 
 function pencilTool() {
@@ -78,19 +96,8 @@ function pencilTool() {
 
 //This function should cancel out the original function
 function doMouseup(e) {
-  switch (currentTool) {
-    //PENCIL TOOL
-    case tool_pencil:
-      ctx.closePath();
-      break;
-    case tool_rectangle:
-    case tool_line:
-      if (dragging) {
-        ctx.drawImage(topCanvas, 0, 0);
-        clearTopCanvas();
-      }
-      break;
-  }
+
+  //This should cancel the effects of drawing
   dragging = false;
 }
 
@@ -101,50 +108,47 @@ function getMouse(e) {
   return mouse;
 }
 
+
+//This site was helpful in programming it in the correct way, or at least in the right direction
+//  https://www.kirupa.com/canvas/moving_shapes_canvas_keyboard.htm
 function getArrowKeys(e) {
   //Use onkeydown to find triggers of arrow keys
-  //Up Arrow Key
-  if (e.keyCode === '38') {
 
-  }
-  //Left Arrow Key
-  if (e.keyCode === '37') {
+  //This will allow us to be able to press two different keys at the same time
+  keys[e.keyCode] = true;
 
+  //Left Key  
+  if (keys[37]) {
+    deltaX -= 2;
   }
-  //Right Arrow Key
-  if (e.keyCode === '39') {
 
+  //Up key
+  if (keys[38]) {
+    deltaY += 2;
   }
-  //Down Arrow Key
-  if (e.keyCode === '40') {
-    //Draw downwards...
+
+  //Right key
+  if (keys[39]) {
+    deltaX += 2;
   }
+
+  //Down key
+  if (keys[40]) {
+    deltaY -= 2;
+  }
+
+  //Space key
+  if (keys[32]) {
+    clearTopCanvas();
+  }
+
+  //Prevent the defaults from happening
+  e.preventDefault();
+
+  //Draw the line here?
 }
 
-//Found some code that I've done on a previous exercise - USED as reference
-/*
-// EVENT CALLBACK FUNCTIONS
-		function doMousedown(e) {
-			console.log(e.type);
-			dragging = true;
-
-			//get the location of the mouse in canvas coordinates
-			var mouse = getMouse(e);
-
-			switch (currentTool) {
-				//PENCIL TOOL
-				case tool_pencil:
-					ctx.beginPath();
-
-					//Move pen to x, y of mouse
-					ctx.moveTo(mouse.x, mouse.y);
-					break;
-
-				case tool_rectangle:
-				case tool_line:
-					origin.x = mouse.x;
-					origin.y = mouse.y;
-					break;
-			}
-		}
-*/
+function keysReleased(e) {
+  // This should mark the keys that were released
+  keys[e.keyCode] = false;
+}
